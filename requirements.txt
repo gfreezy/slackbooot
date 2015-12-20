@@ -1,0 +1,3 @@
+aiohttp
+git+https://github.com/gfreezy/slacker.git
+git+https://github.com/gfreezy/butterfield.git

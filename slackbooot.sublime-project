@@ -1,0 +1,27 @@
+{
+	"build_systems":
+	[
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "/Users/chaofei/.miniconda3/envs/slackbooot/bin/python -u \"$file\""
+		}
+	],
+	"folders":
+	[
+		{
+			"path": "."
+		},
+		{
+			"path": "/Users/chaofei/Develop/slacker/slacker"
+		},
+		{
+			"path": "/Users/chaofei/Develop/butterfield/butterfield"
+		}
+	],
+	"settings":
+	{
+		"python_interpreter": "/Users/chaofei/.miniconda3/envs/slackbooot/bin/python"
+	}
+}
