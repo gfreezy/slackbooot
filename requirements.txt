@@ -1,3 +1,4 @@
 aiohttp
 slacker-asyncio
 git+https://github.com/gfreezy/butterfield.git
+websockets==3.0
