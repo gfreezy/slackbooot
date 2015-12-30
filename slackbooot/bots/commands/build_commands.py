@@ -24,6 +24,8 @@ class BuildCommand:
         await asyncio.wait([websocket.send(req) for websocket in self.websockets])
 
     async def serve(self, websocket, path):
+        if path != '/build':
+            return
         self.websockets.append(websocket)
         try:
             while True:
@@ -56,7 +58,7 @@ class BuildCommand:
 
         await self.enque(param, message)
 
-        await bot.slack.chat.post_message(channel, 'Builidng %s'.format(keyword), attachments=[
+        await bot.slack.chat.post_message(channel, 'Builidng {}'.format(keyword), attachments=[
             {
                 'title': keyword,
                 'fallback': keyword,

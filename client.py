@@ -4,7 +4,7 @@ import json
 
 
 async def hello():
-    websocket = await websockets.connect('ws://localhost:8765/')
+    websocket = await websockets.connect('ws://localhost:8765/build')
 
     while True:
         greeting = json.loads(await websocket.recv())
