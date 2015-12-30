@@ -4,7 +4,7 @@ import json
 
 
 async def hello():
-    websocket = await websockets.connect('ws://localhost:8765/build')
+    websocket = await websockets.connect('ws://slackbooot.herokuapp.com/build')
 
     while True:
         greeting = json.loads(await websocket.recv())

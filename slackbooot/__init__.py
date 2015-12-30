@@ -6,9 +6,9 @@ from .bots.commands.build_commands import BuildCommand
 
 
 def run(token, port):
-    b = CommandBot(token, port=port)
+    b = CommandBot(token)
     b.listen_on_command(['gif'], find_gif)
     b.listen_on_command(['gif', 'trends'], gif_trends)
-    b.listen_on_command(['build'], BuildCommand(b))
+    b.listen_on_command(['build'], BuildCommand(b, port=port))
 
     butterfield.run(b)
