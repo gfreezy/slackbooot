@@ -1,6 +1,5 @@
 import websockets
 import asyncio
-import uuid
 import json
 
 
@@ -9,59 +8,59 @@ class BuildCommand:
         self.loop = asyncio.get_event_loop()
         self.server = websockets.serve(self.serve, listen, port)
         self.websockets = []
-        self.queue = {}
         self.bot = bot
         asyncio.ensure_future(self.server)
-
-    async def enque(self, param, message):
-        id = str(uuid.uuid4())
-        self.queue[id] = {
-            'count': len(self.websockets),
-            'param': param,
-            'message': message,
-        }
-        req = json.dumps({'id': id, 'req': param})
-        await asyncio.wait([websocket.send(req) for websocket in self.websockets])
 
     async def serve(self, websocket, path):
         if path != '/build':
             return
         self.websockets.append(websocket)
+        print('New websocket connected[{}]'.format(len(self.websockets)))
         try:
             while True:
                 resp = await websocket.recv()
                 print('received', resp)
                 ret = json.loads(resp)
-                data = self.queue.get(ret['id'])
-                channel = data['message']['channel']
-                resp = ret['resp']
-                await self.bot.slack.chat.post_message(channel, resp, attachments=[
+
+                try:
+                    channel = ret['raw']['channel']
+                except:
+                    await websocket.send(json.dumps({'status': 'error', 'message': 'Missing "raw"'}))
+                    continue
+
+                resp = ret.get('resp', {})
+                title = resp.get('title', '')
+                text = resp.get('text', '')
+
+                await self.bot.slack.chat.post_message(channel, '', attachments=[
                     {
-                        'title': resp,
-                        'fallback': resp,
-                        'text': resp
+                        'title': title,
+                        'text': text,
+                        'fallback': title,
                     }
                 ])
-                data['count'] -= 1
-                if data['count'] <= 0:
-                    del self.queue[ret['id']]
-        except:
+        except websockets.exceptions.ConnectionClosed:
             pass
+
         finally:
             self.websockets.remove(websocket)
-            for k, v in self.queue.items():
-                v['count'] -= 1
+            print('Websocket disconnected[{}]'.format(len(self.websockets)))
 
     async def __call__(self, param, bot, message):
         channel = message['channel']
         keyword = param
 
-        await self.enque(param, message)
+        req = json.dumps({'req': param, 'raw': message})
 
-        await bot.slack.chat.post_message(channel, 'Builidng {}'.format(keyword), attachments=[
+        msg = ('Build failed!', 'No worker connected!!!')
+        if self.websockets:
+            msg = ('Building {}'.format(keyword), 'Work work hard!!!')
+            asyncio.ensure_future(asyncio.wait([websocket.send(req) for websocket in self.websockets], timeout=10))
+
+        await bot.slack.chat.post_message(channel, '', attachments=[
             {
-                'title': keyword,
-                'fallback': keyword,
-                'text': keyword
+                'title': msg[0],
+                'text': msg[1],
+                'fallback': msg[0],
             }
         ])
